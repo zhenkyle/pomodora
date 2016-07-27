@@ -6,7 +6,7 @@ function parse(accept) {
   return !isNaN(accept) ?
     parse(accept) :
     parse
-  
+
   function parse (seconds) {
     var parsed = {
       years: 0,
@@ -54,7 +54,7 @@ function parse(accept) {
 }
 
 function checkTime(i) {
-if (i<10) 
+if (i<10)
   {i='0' + i}
   return i
 }
@@ -65,16 +65,44 @@ function formated_seconds(seconds) {
 }
 
 $(function(){
-    function render() {
-      var seconds = parseInt($("#work").text()) * 60;
-      $("#mycircle").html("");
-      $("#mycircle").percircle({
-        text: formated_seconds(seconds),
-        percent: parseInt($("#work").text())
-      });
-      console.log("render!");
+    var status = {
+      kind: 'work', // 'work','rest'
+      mode: 'stopped',  //'stopped','running','paused'
+      elapse: 0, // elapse in seconds
     }
-    render();
+
+    function render() {
+      var seconds = parseInt($("#" + status.kind).text()) * 60;
+      if (status.mode ==="stopped") {
+        $("#mycircle-text").text(seconds/60);
+      } else if(status.mode ==="paused") {
+        $("#mycircle-text").text("Paused");
+      } else if(status.mode ==="running") {
+        $("#mycircle-text").text(formated_seconds(status.elapse));
+      }
+      var myclass ="c100 big center";
+      if (status.kind ==='rest') {
+        myclass += " green";
+      }
+      myclass += " p" + Math.round(status.elapse*100/seconds);
+      $("#mycircle").attr("class", myclass);
+    }
+
+    render();  // initial render;
+
+    function run() {
+      var seconds = parseInt($("#" + status.kind).text()) * 60;
+      if(status.elapse<seconds) {
+        status.elapse += 1;
+      } else {
+        status.elapse = 0;
+        status.kind = status.kind === "work" ? "rest" : "work";
+      }
+      render();
+      if (status.mode ==="running") {
+        setTimeout(run,1000);
+      }
+    }
 
     $("#work-sub").click(function(){
       var val = $("#work").text();
@@ -82,11 +110,17 @@ $(function(){
         return;
       }
       $("#work").text(parseInt(val) -1);
+      status.mode ="stopped";
+      status.elapse = 0;
+      render();
     });
 
     $("#work-add").click(function(){
       var val = $("#work").text();
       $("#work").text(parseInt(val) +1);
+      status.mode ="stopped";
+      status.elapse = 0;
+      render();
     });
 
     $("#rest-sub").click(function(){
@@ -95,11 +129,26 @@ $(function(){
         return;
       }
       $("#rest").text(parseInt(val) -1);
+      status.mode ="stopped";
+      status.elapse = 0;
+      render();
     });
 
     $("#rest-add").click(function(){
       var val = $("#rest").text();
       $("#rest").text(parseInt(val) +1);
+      status.mode ="stopped";
+      status.elapse = 0;
+      render();
+    });
+
+    $("#mycircle").click(function() {
+      if (status.mode === "stopped" || status.mode ==="paused") {
+        status.mode = "running";
+        setTimeout(run,1000);
+      } else if(status.mode ==="running") {
+        status.mode = "paused";
+      }
     });
 
 });

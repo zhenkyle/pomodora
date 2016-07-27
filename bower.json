@@ -8,7 +8,8 @@
     "requirejs": "~2.1.10",
     "requirejs-text": "~2.0.10",
     "modernizr": "~2.7.1",
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "compass-mixins": "^1.0.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
